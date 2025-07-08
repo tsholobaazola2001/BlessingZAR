@@ -1,38 +1,13 @@
 import React from 'react';
-import { Wallet, AlertCircle, Settings, ExternalLink } from 'lucide-react';
+import { Wallet, AlertCircle, Settings, ExternalLink, Info } from 'lucide-react';
 import { useWeb3 } from '../hooks/useWeb3';
 
 export const WalletConnection: React.FC = () => {
   const { account, isConnected, isLoading, error, connectWallet, disconnectWallet } = useWeb3();
+  const [showInstructions, setShowInstructions] = React.useState(false);
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  const addCeloTestnet = async () => {
-    if (!window.ethereum) {
-      throw new Error('MetaMask is not installed');
-    }
-
-    try {
-      await window.ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [{
-          chainId: '0xAEF3', // 44787 in hex
-          chainName: 'Celo Alfajores Testnet',
-          nativeCurrency: {
-            name: 'Celo',
-            symbol: 'CELO',
-            decimals: 18
-          },
-          rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
-          blockExplorerUrls: ['https://explorer.celo.org/alfajores']
-        }]
-      });
-    } catch (error) {
-      console.error('Error adding Celo testnet:', error);
-      throw error;
-    }
   };
 
   if (isConnected && account) {
@@ -57,46 +32,66 @@ export const WalletConnection: React.FC = () => {
       <Wallet className="w-12 h-12 text-blue-300 mx-auto mb-4" />
       <h3 className="text-xl font-semibold text-white mb-2">Connect Your Wallet</h3>
       <p className="text-gray-300 mb-6">
-        Connect your MetaMask wallet to start using BlessingZAR on Celo Alfajores Testnet
+        Connect your MetaMask wallet to start using BlessingZAR
       </p>
       
-      <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-6">
-        <div className="flex items-center space-x-2 mb-3">
-          <Settings className="w-5 h-5 text-blue-400" />
-          <h4 className="text-blue-300 font-semibold">Setup Requirements:</h4>
-        </div>
-        <div className="text-left space-y-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-            <span className="text-sm text-gray-300">MetaMask browser extension installed</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-            <span className="text-sm text-gray-300">Celo Alfajores Testnet added to MetaMask</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-            <span className="text-sm text-gray-300">Test CELO tokens from faucet</span>
-          </div>
-        </div>
-        <div className="mt-4 pt-3 border-t border-blue-500/30 space-y-2">
+      {!showInstructions ? (
+        <div className="mb-6">
           <button
-            onClick={addCeloTestnet}
-            className="w-full px-3 py-2 bg-blue-500/30 hover:bg-blue-500/40 text-blue-300 rounded-lg transition-colors text-sm"
+            onClick={() => setShowInstructions(true)}
+            className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors mx-auto"
           >
-            Add Celo Testnet to MetaMask
+            <Info className="w-4 h-4" />
+            <span className="text-sm">Need help setting up Celo testnet?</span>
           </button>
-          <a 
-            href="https://faucet.celo.org/alfajores" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center justify-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            <ExternalLink className="w-4 h-4" />
-            <span className="text-sm">Get Test CELO from Faucet</span>
-          </a>
         </div>
-      </div>
+      ) : (
+        <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <Settings className="w-5 h-5 text-blue-400" />
+              <h4 className="text-blue-300 font-semibold">Setup Instructions:</h4>
+            </div>
+            <button
+              onClick={() => setShowInstructions(false)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              ×
+            </button>
+          </div>
+          <div className="text-left space-y-3">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-300 font-medium">1. Add Celo Alfajores Testnet to MetaMask:</p>
+              <div className="bg-gray-800/50 rounded p-3 text-xs text-gray-300">
+                <div>Network Name: <span className="text-blue-300">Celo Alfajores Testnet</span></div>
+                <div>RPC URL: <span className="text-blue-300">https://alfajores-forno.celo-testnet.org</span></div>
+                <div>Chain ID: <span className="text-blue-300">44787</span></div>
+                <div>Currency Symbol: <span className="text-blue-300">CELO</span></div>
+                <div>Block Explorer: <span className="text-blue-300">https://explorer.celo.org/alfajores</span></div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm text-gray-300 font-medium">2. Get test CELO tokens:</p>
+              <a 
+                href="https://faucet.celo.org/alfajores" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span className="text-sm">Visit Celo Alfajores Faucet</span>
+              </a>
+            </div>
+
+            <div className="pt-2 border-t border-blue-500/30">
+              <p className="text-xs text-gray-400">
+                Make sure to switch to Celo Alfajores Testnet in MetaMask before connecting
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       
       {error && (
         <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg flex items-center space-x-2">
@@ -114,7 +109,7 @@ export const WalletConnection: React.FC = () => {
       </button>
       
       <p className="text-xs text-gray-400 mt-4">
-        Make sure you have MetaMask installed and Celo Alfajores Testnet added
+        Make sure you have MetaMask installed and are on Celo Alfajores Testnet
       </p>
     </div>
   );

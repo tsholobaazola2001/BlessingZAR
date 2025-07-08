@@ -17,9 +17,6 @@ export const useWeb3 = () => {
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
-        setIsLoading(true);
-        setError('');
-        
         // Request account access
         const accounts = await window.ethereum.request({
           method: 'eth_requestAccounts'
@@ -40,7 +37,11 @@ export const useWeb3 = () => {
         });
         
       } catch (err: any) {
-        setError(err.message || 'Failed to connect wallet');
+        if (err.code === 4001) {
+          setError('Connection rejected by user');
+        } else {
+          setError(err.message || 'Failed to connect wallet');
+        }
       } finally {
         setIsLoading(false);
       }
